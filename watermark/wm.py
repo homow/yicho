@@ -2,10 +2,13 @@ import cv2
 import numpy as np
 # import matplotlib.pyplot as plt
 import os
+import sys
+
 
 wm_img = cv2.imread(
     r"C:\Users\Administrator\Pictures\SMMS\homow-high-resolution-logo-color-on-transparent-background.png", cv2.IMREAD_UNCHANGED)
-name = "f7e07509.jpg"
+# name = ""
+# path = ""
 
 
 def add_alpha_channel(img):
@@ -20,8 +23,8 @@ def add_alpha_channel(img):
 def add_water_mark(pic_name):
     orig_img = cv2.imread(pic_name, cv2.IMREAD_UNCHANGED)
 
-    print(orig_img.shape)
-    print(wm_img.shape)
+    # print(orig_img.shape)
+    # print(wm_img.shape)
     scal = orig_img.shape[1]/10/wm_img.shape[1]
     half = cv2.resize(wm_img, (0, 0), fx=scal, fy=scal)
 
@@ -41,6 +44,27 @@ def add_water_mark(pic_name):
     for c in range(0, 3):
         orig_img[y1:y2, x1:x2, c] = (
             (alpha_jpg*orig_img[y1:y2, x1:x2, c]) + (alpha_png*half[:, :, c]))
-
-    base_name = os.path.splitext(pic_name)[0]
+    base_name, _ = os.path.splitext(pic_name)
+    # base_name = os.path.splitext(pic_name)[0]
     cv2.imwrite(base_name + '-wm.jpg', orig_img)
+    print(base_name + '-wm.jpg')
+
+
+def add_water_mark_folder(path):
+    for root, _, files in os.walk(path):
+        for file in files:
+            filepath = os.path.join(root, file)
+            add_water_mark(filepath)
+            # _, fileext = os.path.splitext(filepath)
+            # if fileext == ('.png' or '.PNG'):
+            #     img = Image.open(filepath).convert("RGB")
+            #     img.save(filepath.replace('png', 'jpg'))
+            #     print(filepath.replace('png', 'jpg'))
+            #     os.remove(filepath)
+
+
+if len(sys.argv) != 2:
+    print("Usage: vm.py path_of_the_folder")
+    exit(0)
+else:
+    add_water_mark_folder(sys.argv[1])
